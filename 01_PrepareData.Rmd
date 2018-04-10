@@ -1,0 +1,687 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+Here is a test
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+
+```{r echo=TRUE}
+#####Beginn script on preparing data for public private schools civic ed outcomes
+rm(list=ls(all=TRUE))
+
+
+```
+
+```{r}
+#open & save original data European value Study 2008
+#codebook source: codebook: https://dbk.gesis.org/dbksearch/file.asp?file=ZA4800_cdb.pdf
+library(foreign)
+EVS2008 = read.spss("/Users/schmaelz/Documents/Publications/GlobalCitizenshipBelief network/EVSonly/EVS2008ZA4800_v4-0-0.sav", to.data.frame=TRUE)
+save(EVS2008,file="/Users/schmaelz/Documents/Publications/GlobalCitizenshipBelief network/EVSonly/EVS2008ZA4800_v4-0-0.sav.Rdata")
+
+#Select the European OECD Countries only
+attach(EVS2008)
+EVS2008F<- subset(EVS2008, country == "Austria" | country =="Belgium"| country =="Czech Republic" | country =="Denmark"| country =="Estonia"| country =="Finland"| country =="France"| country =="Germany"| country =="Greece"| country =="Hungary"| country =="Iceland"| country =="Ireland"| country =="Italy"| country =="Latvia"| country =="Luxembourg"| country =="Netherlands"| country =="Norway"| country =="Poland"| country =="Portugal"| country =="Slovak Republic"| country =="Slovenia"| country =="Spain"| country =="Sweden"| country =="Switzerland"| country =="Turkey"| country =="Great Britain"| country =="Northern Ireland")
+
+# remove original data & save the new data with European OECD countries only
+rm(EVS2008)
+save(EVS2008F,file="/Users/schmaelz/Documents/GITHUB/CitizenshipNetworks/data/EVS2008F.Rdata")
+
+
+```
+
+```{r}
+#building new variables with sufix new for relevant variables
+attach(EVS2008F)
+
+#new country variable
+EVS2008F$countrynew<- as.numeric(EVS2008F$country)
+table (EVS2008F$countrynew)
+
+#variables on the appreciation of diversity
+EVS2008F$v47new<-as.numeric(EVS2008F$v47) #don’t like neighbors of different race
+EVS2008F$v53new<-as.numeric(EVS2008F$v53) #Don’t like muslims as neighbors
+EVS2008F$v54new<-as.numeric(EVS2008F$v54) #Don’t like immigrants as neighbors
+EVS2008F$v275new<-as.numeric(EVS2008F$v275)  #there are too many immigrants living in the country  
+
+#variables describing awareness for global interdependence
+EVS2008F$v301new<-as.numeric(EVS2008F$v301) #we are expecting an environmental catastrophe if everything continues as it is
+EVS2008F$v299new<-as.numeric(EVS2008F$v299) #nature is strong enough to cope with industrial pollution
+EVS2008F$v298new<-as.numeric(EVS2008F$v298) #human ingenuity insures earth remaining fit (as a proxy for not being aware of serious global environmental issues)
+
+#Variables describing local/global empathy and v67: general empathy
+EVS2008F$v288new<-as.numeric(EVS2008F$v288) #concerned about living conditions of Europeans
+EVS2008F$v289new<-as.numeric(EVS2008F$v289) #concerned about living conditions of human kind
+EVS2008F$v292new<-as.numeric(EVS2008F$v292)  #concerned about living conditions of immigrants
+EVS2008F$v287new<-as.numeric(EVS2008F$v287) #concerned about living conditions of fellow countrymen
+EVS2008F$v285new<-as.numeric(EVS2008F$v285) #concerned about living conditions of people in the own neighborhood
+EVS2008F$v67new<-as.numeric(EVS2008F$v67) #Why are people in this country living in need? 
+
+#general affinity to social group idenity
+EVS2008F$v25new<-as.numeric(EVS2008F$v25) #no memebrship in any social group 
+EVS2008F$v128new<-as.numeric(EVS2008F$v128) #there is only one true religion 
+EVS2008F$v134new<-as.numeric(EVS2008F$v134) #Politicians who do not believe in god are unfit for office
+
+#institutional and symbolic patriotism
+EVS2008F$v206new<-as.numeric(EVS2008F$v206) #confidence the armed forces
+EVS2008F$v207new<-as.numeric(EVS2008F$v207) #confidence in the education system
+EVS2008F$v210new<-as.numeric(EVS2008F$v210) #confidence in the police
+EVS2008F$v211new<-as.numeric(EVS2008F$v211) #confidence in the parliament
+EVS2008F$v222new<-as.numeric(EVS2008F$v222) #confidence in the government
+EVS2008F$v256new<-as.numeric(EVS2008F$v256) #how proud are you to be a citizen of this country
+
+#Protectionist views
+EVS2008F$v102new<-as.numeric(EVS2008F$v102) #job priority by citizenship:when jobs are scarce: employers should give citizens(from this nation) priority for employment
+EVS2008F$v266new<-as.numeric(EVS2008F$v266) #Approval for open borders: How about people from less developed countries coming here to work? Which one of the following do you think the government should do? 
+EVS2008F$v271new<-as.numeric(EVS2008F$v271) #immigrants are a strain on welfare system
+EVS2008F$v268new<-as.numeric(EVS2008F$v268) #immigrants take jobs away
+EVS2008F$v278new<-as.numeric(EVS2008F$v278) #ancestry based citizenship ideal: to be a citizen of this country it is important to have ancestry here
+EVS2008F$v269new<-as.numeric(EVS2008F$v269) #immigrants undermine country’s culture
+EVS2008F$v270new<-as.numeric(EVS2008F$v270) #immigrants increase crime rates
+EVS2008F$v272new<-as.numeric(EVS2008F$v272)  #immigrants become a threat to society   
+EVS2008F$v258new<-as.numeric(EVS2008F$v258) #Eu fears: loss of cultural identity
+
+#Confidence in supra-national governance
+EVS2008F$v214new<-as.numeric(EVS2008F$v214) #confidence in the EU
+EVS2008F$v216new<-as.numeric(EVS2008F$v216) #confidence in the UN
+
+#Supra-national social group identity
+EVS2008F$v253new<-as.numeric(EVS2008F$v253) #to which geographic group belong first
+EVS2008F$v254new<-as.numeric(EVS2008F$v254) #to which geographic group belong second
+
+```
+
+```{r}
+#recoding these new variables with sufix new into binary:
+
+attach(EVS2008F)
+
+################
+
+library(memisc)
+EVS2008F$v47new=cases(
+"8"= EVS2008F$v47new==2 ,
+"9"= EVS2008F$v47new==1 )
+table(EVS2008F$v47new)
+
+library(memisc)
+EVS2008F$v47new=cases(
+"1"= EVS2008F$v47new==9,
+"0"= EVS2008F$v47new==8 )
+table(EVS2008F$v47new)
+
+################
+
+library(memisc)
+EVS2008F$v53new=cases(
+"8"= EVS2008F$v53new==2 ,
+"9"= EVS2008F$v53new==1 )
+table(EVS2008F$v53new)
+
+library(memisc)
+EVS2008F$v53new=cases(
+"1"= EVS2008F$v53new==9,
+"0"= EVS2008F$v53new==8 )
+table(EVS2008F$v53new)
+
+################
+
+library(memisc)
+EVS2008F$v54new=cases(
+"8"= EVS2008F$v54new==2 ,
+"9"= EVS2008F$v54new==1 )
+table(EVS2008F$v54new)
+
+library(memisc)
+EVS2008F$v54new=cases(
+"1"= EVS2008F$v54new==9,
+"0"= EVS2008F$v54new==8 )
+table(EVS2008F$v54new)
+
+################
+
+library(memisc)
+EVS2008F$v275new=cases(
+"8"= EVS2008F$v275new==1 | EVS2008F$v275new==2,
+"9"= EVS2008F$v275new==3 | EVS2008F$v275new==4| EVS2008F$v275new==5)
+table(EVS2008F$v275new)
+
+library(memisc)
+EVS2008F$v275new=cases(
+"1"= EVS2008F$v275new==9,
+"0"= EVS2008F$v275new==8 )
+table(EVS2008F$v275new)
+
+
+################
+
+
+library(memisc)
+EVS2008F$v301new=cases(
+"7"= EVS2008F$v301new==1 | EVS2008F$v301new==2,
+"6"= EVS2008F$v301new==3 | EVS2008F$v301new==4)
+
+library(memisc)
+EVS2008F$v301new=cases(
+"1"= EVS2008F$v301new==7,
+"0"= EVS2008F$v301new==6)
+table (EVS2008F$v301new)
+
+################
+
+
+library(memisc)
+EVS2008F$v299new=cases(
+"6"= EVS2008F$v299new==1 | EVS2008F$v299new==2,
+"7"= EVS2008F$v299new==3 | EVS2008F$v299new==4)
+table(EVS2008F$v299new)
+
+library(memisc)
+EVS2008F$v299new=cases(
+"0"= EVS2008F$v299new==6 ,
+"1"= EVS2008F$v299new==7 )
+table(EVS2008F$v299new)
+
+
+################
+library(memisc)
+EVS2008F$v298new=cases(
+"6"= EVS2008F$v298new==1 | EVS2008F$v298new==2,
+"7"= EVS2008F$v298new==3 | EVS2008F$v298new==4)
+table(EVS2008F$v298new)
+
+library(memisc)
+EVS2008F$v298new=cases(
+"0"= EVS2008F$v298new==6 ,
+"1"= EVS2008F$v298new==7 )
+table(EVS2008F$v298new)
+
+
+################
+library(memisc)
+EVS2008F$v288new=cases(
+"9"= EVS2008F$v288new==1 | EVS2008F$v288new==2,
+"8"= EVS2008F$v288new==3 | EVS2008F$v288new==4| EVS2008F$v288new==5)
+table(EVS2008F$v288new)
+
+library(memisc)
+EVS2008F$v288new=cases(
+"1"= EVS2008F$v288new==9,
+"0"= EVS2008F$v288new==8)
+table(EVS2008F$v288new)
+
+################
+
+library(memisc)
+EVS2008F$v289new=cases(
+"9"= EVS2008F$v289new==1 | EVS2008F$v289new==2,
+"8"= EVS2008F$v289new==3 | EVS2008F$v289new==4| EVS2008F$v289new==5)
+table(EVS2008F$v289new)
+
+library(memisc)
+EVS2008F$v289new=cases(
+"1"= EVS2008F$v289new==9,
+"0"= EVS2008F$v289new==8)
+table(EVS2008F$v289new)
+
+################
+
+library(memisc)
+EVS2008F$v287new=cases(
+"9"= EVS2008F$v287new==1 | EVS2008F$v287new==2,
+"8"= EVS2008F$v287new==3 | EVS2008F$v287new==4| EVS2008F$v287new==5)
+table(EVS2008F$v287new)
+
+library(memisc)
+EVS2008F$v287new=cases(
+"1"= EVS2008F$v287new==9,
+"0"= EVS2008F$v287new==8)
+table(EVS2008F$v287new)
+
+################
+
+library(memisc)
+EVS2008F$v285new=cases(
+"9"= EVS2008F$v285new==1 | EVS2008F$v285new==2,
+"8"= EVS2008F$v285new==3 | EVS2008F$v285new==4| EVS2008F$v285new==5)
+table(EVS2008F$v285new)
+
+library(memisc)
+EVS2008F$v285new=cases(
+"1"= EVS2008F$v285new==9,
+"0"= EVS2008F$v285new==8)
+table(EVS2008F$v285new)
+
+#####
+
+library(memisc)
+EVS2008F$v292new=cases(
+"9"= EVS2008F$v292new==1 | EVS2008F$v292new==2,
+"8"= EVS2008F$v292new==3 | EVS2008F$v292new==4| EVS2008F$v292new==5)
+table(EVS2008F$v292new)
+
+library(memisc)
+EVS2008F$v292new=cases(
+"1"= EVS2008F$v292new==9,
+"0"= EVS2008F$v292new==8)
+table(EVS2008F$v292new)
+
+################
+
+library(memisc)
+EVS2008F$v25new=cases(
+"7"= EVS2008F$v25new==1 ,
+"8"= EVS2008F$v25new==2 )
+table(EVS2008F$v25new)
+
+library(memisc)
+EVS2008F$v25new=cases(
+"0"= EVS2008F$v25new==7 ,
+"1"= EVS2008F$v25new==8 )
+table(EVS2008F$v25new)
+
+################
+
+library(memisc)
+EVS2008F$v128new=cases(
+"7"= EVS2008F$v128new==1 | EVS2008F$v128new==2,
+"8"= EVS2008F$v128new==3 | EVS2008F$v128new==4)
+table(EVS2008F$v128new)
+
+library(memisc)
+EVS2008F$v128new=cases(
+"0"= EVS2008F$v128new==7 ,
+"1"= EVS2008F$v128new==8 )
+table(EVS2008F$v128new)
+
+################
+
+library(memisc)
+EVS2008F$v134new=cases(
+"8"= EVS2008F$v134new==4 | EVS2008F$v134new==5,
+"7"= EVS2008F$v134new==1 | EVS2008F$v134new==2| EVS2008F$v134new==3)
+table(EVS2008F$v134new)
+
+
+library(memisc)
+EVS2008F$v134new=cases(
+"1"= EVS2008F$v134new==8 ,
+"0"= EVS2008F$v134new==7 )
+table(EVS2008F$v134new)
+
+################
+
+library(memisc)
+EVS2008F$v206new=cases(
+"7"= EVS2008F$v206new==1 | EVS2008F$v206new==2,
+"8"= EVS2008F$v206new==3 | EVS2008F$v206new==4)
+table(EVS2008F$v206new)
+
+library(memisc)
+EVS2008F$v206new=cases(
+"0"= EVS2008F$v206new==7 ,
+"1"= EVS2008F$v206new==8 )
+table(EVS2008F$v206new)
+
+################
+
+library(memisc)
+EVS2008F$v207new=cases(
+"8"= EVS2008F$v207new==1 | EVS2008F$v207new==2,
+"7"= EVS2008F$v207new==3 | EVS2008F$v207new==4)
+table(EVS2008F$v207new)
+
+library(memisc)
+EVS2008F$v207new=cases(
+"1"= EVS2008F$v207new==8 ,
+"0"= EVS2008F$v207new==7 )
+table(EVS2008F$v207new)
+
+################
+
+library(memisc)
+EVS2008F$v210new=cases(
+"8"= EVS2008F$v210new==1 | EVS2008F$v210new==2,
+"7"= EVS2008F$v210new==3 | EVS2008F$v210new==4)
+table(EVS2008F$v210new)
+
+library(memisc)
+EVS2008F$v210new=cases(
+"1"= EVS2008F$v210new==8 ,
+"0"= EVS2008F$v210new==7 )
+table(EVS2008F$v210new)
+
+################
+
+library(memisc)
+EVS2008F$v211new=cases(
+"8"= EVS2008F$v211new==1 | EVS2008F$v211new==2,
+"7"= EVS2008F$v211new==3 | EVS2008F$v211new==4)
+table(EVS2008F$v211new)
+
+library(memisc)
+EVS2008F$v211new=cases(
+"1"= EVS2008F$v211new==8 ,
+"0"= EVS2008F$v211new==7 )
+table(EVS2008F$v211new)
+
+################
+
+library(memisc)
+EVS2008F$v222new=cases(
+"8"= EVS2008F$v222new==1 | EVS2008F$v222new==2,
+"7"= EVS2008F$v222new==3 | EVS2008F$v222new==4)
+table(EVS2008F$v222new)
+
+library(memisc)
+EVS2008F$v222new=cases(
+"1"= EVS2008F$v222new==8 ,
+"0"= EVS2008F$v222new==7 )
+table(EVS2008F$v222new)
+
+################
+
+library(memisc)
+EVS2008F$v256new=cases(
+"7"= EVS2008F$v256new==1,
+"8"= EVS2008F$v256new==2 | EVS2008F$v256new==3| EVS2008F$v256new==4)
+table(EVS2008F$v256new)
+
+library(memisc)
+EVS2008F$v256new=cases(
+"0"= EVS2008F$v256new==7,
+"1"= EVS2008F$v256new==8 )
+table(EVS2008F$v256new)
+################
+
+library(memisc)
+EVS2008F$v102new=cases(
+"7"= EVS2008F$v102new==1,
+"8"= EVS2008F$v102new==3 | EVS2008F$v102new==2)
+table(EVS2008F$v102new)
+
+
+library(memisc)
+EVS2008F$v102new=cases(
+"0"= EVS2008F$v102new==7,
+"1"= EVS2008F$v102new==8 )
+table(EVS2008F$v102new)
+
+################
+
+library(memisc)
+EVS2008F$v266new=cases(
+"8"= EVS2008F$v266new==1 | EVS2008F$v266new==2,
+"7"= EVS2008F$v266new==3 | EVS2008F$v266new==4)
+table(EVS2008F$v266new)
+
+library(memisc)
+EVS2008F$v266new=cases(
+"1"= EVS2008F$v266new==8 ,
+"0"= EVS2008F$v266new==7 )
+table(EVS2008F$v266new)
+
+################
+
+library(memisc)
+EVS2008F$v271new=cases(
+"12"= EVS2008F$v271new<6,
+"13"= EVS2008F$v271new>5)
+table(EVS2008F$v271new)
+
+library(memisc)
+EVS2008F$v271new=cases(
+"0"= EVS2008F$v271new==12,
+"1"= EVS2008F$v271new==13)
+table(EVS2008F$v271new)
+
+################
+
+library(memisc)
+EVS2008F$v268new=cases(
+"12"= EVS2008F$v268new<6,
+"13"= EVS2008F$v268new>5)
+table(EVS2008F$v268new)
+
+library(memisc)
+EVS2008F$v268new=cases(
+"0"= EVS2008F$v268new==12,
+"1"= EVS2008F$v268new==13)
+table(EVS2008F$v268new)
+
+################
+
+library(memisc)
+EVS2008F$v269new=cases(
+"12"= EVS2008F$v269new<6,
+"13"= EVS2008F$v269new>5)
+table(EVS2008F$v269new)
+
+library(memisc)
+EVS2008F$v269new=cases(
+"0"= EVS2008F$v269new==12,
+"1"= EVS2008F$v269new==13)
+table(EVS2008F$v269new)
+
+################
+
+library(memisc)
+EVS2008F$v270new=cases(
+"12"= EVS2008F$v270new<6,
+"13"= EVS2008F$v270new>5)
+table(EVS2008F$v270new)
+
+library(memisc)
+EVS2008F$v270new=cases(
+"0"= EVS2008F$v270new==12,
+"1"= EVS2008F$v270new==13)
+table(EVS2008F$v270new)
+
+################
+
+library(memisc)
+EVS2008F$v272new=cases(
+"12"= EVS2008F$v272new<6,
+"13"= EVS2008F$v272new>5)
+table(EVS2008F$v272new)
+
+library(memisc)
+EVS2008F$v272new=cases(
+"0"= EVS2008F$v272new==12,
+"1"= EVS2008F$v272new==13)
+table(EVS2008F$v272new)
+
+################
+
+library(memisc)
+EVS2008F$v258new=cases(
+"12"= EVS2008F$v258new<6,
+"13"= EVS2008F$v258new>5)
+table(EVS2008F$v258new)
+
+library(memisc)
+EVS2008F$v258new=cases(
+"0"= EVS2008F$v258new==12,
+"1"= EVS2008F$v258new==13)
+table(EVS2008F$v258new)
+
+################
+
+library(memisc)
+EVS2008F$v214new=cases(
+"8"= EVS2008F$v214new==1 | EVS2008F$v214new==2,
+"7"= EVS2008F$v214new==3 | EVS2008F$v214new==4)
+table(EVS2008F$v214new)
+
+library(memisc)
+EVS2008F$v214new=cases(
+"1"= EVS2008F$v214new==8 ,
+"0"= EVS2008F$v214new==7 )
+table(EVS2008F$v214new)
+
+################
+
+library(memisc)
+EVS2008F$v216new=cases(
+"8"= EVS2008F$v216new==1 | EVS2008F$v216new==2,
+"7"= EVS2008F$v216new==3 | EVS2008F$v216new==4)
+table(EVS2008F$v216new)
+
+library(memisc)
+EVS2008F$v216new=cases(
+"1"= EVS2008F$v216new==8 ,
+"0"= EVS2008F$v216new==7 )
+table(EVS2008F$v216new)
+
+################
+
+library(memisc)
+EVS2008F$v253new=cases(
+"8"= EVS2008F$v253new==4 | EVS2008F$v253new==5,
+"7"= EVS2008F$v253new==1 | EVS2008F$v253new==2 | EVS2008F$v253new==3)
+table(EVS2008F$v253new)
+
+library(memisc)
+EVS2008F$v253new=cases(
+"1"= EVS2008F$v253new==8 ,
+"0"= EVS2008F$v253new==7 )
+table(EVS2008F$v253new)
+
+################
+
+library(memisc)
+EVS2008F$v254new=cases(
+"8"= EVS2008F$v254new==4 | EVS2008F$v254new==5,
+"7"= EVS2008F$v254new==1 | EVS2008F$v254new==2 | EVS2008F$v254new==3)
+table(EVS2008F$v254new)
+
+library(memisc)
+EVS2008F$v254new=cases(
+"1"= EVS2008F$v254new==8 ,
+"0"= EVS2008F$v254new==7 )
+table(EVS2008F$v254new)
+
+################
+
+set.seed
+EVS2008F$GC<-ifelse(EVS2008F$v254new==1 |EVS2008F$v253new==1,8,7)
+table(EVS2008F$GC)
+
+library(memisc)
+EVS2008F$GC=cases(
+"1"= EVS2008F$GC==8 ,
+"0"= EVS2008F$GC==7 )
+table(EVS2008F$GC)
+
+################
+
+library(memisc)
+EVS2008F$v278new=cases(
+"7"= EVS2008F$v278new==1 | EVS2008F$v278new==2,
+"8"= EVS2008F$v278new==3 | EVS2008F$v278new==4)
+table(EVS2008F$v278new)
+
+library(memisc)
+EVS2008F$v278new=cases(
+"0"= EVS2008F$v278new==7 ,
+"1"= EVS2008F$v278new==8 )
+table(EVS2008F$v278new)
+
+
+################
+
+```
+
+```{r}
+#####re-naming the newly created variables into node names (for better display in network graphs)
+attach(EVS2008F)
+EVS2008F$A1<- EVS2008F$v47new 
+EVS2008F$A2<- EVS2008F$v53new   
+EVS2008F$A3<-EVS2008F$v54new 
+EVS2008F$B<- EVS2008F$v275new 
+EVS2008F$C1<- EVS2008F$v301new 
+EVS2008F$C2<- EVS2008F$v299new
+EVS2008F$C3<- EVS2008F$v298new 
+EVS2008F$D1<- EVS2008F$v288new 
+EVS2008F$D2<- EVS2008F$v289new 
+EVS2008F$D3<- EVS2008F$v287new 
+EVS2008F$D4<- EVS2008F$v285new 
+EVS2008F$D5<- EVS2008F$v292new
+EVS2008F$E<- EVS2008F$v25new
+EVS2008F$F<- EVS2008F$v128new
+EVS2008F$G<- EVS2008F$v134new
+EVS2008F$H1<- EVS2008F$v206new 
+EVS2008F$H2<- EVS2008F$v207new 
+EVS2008F$H3<- EVS2008F$v210new 
+EVS2008F$H4<- EVS2008F$v211new 
+EVS2008F$H5<- EVS2008F$v222new 
+EVS2008F$I<-EVS2008F$v256new 
+EVS2008F$J<- EVS2008F$v102new 
+EVS2008F$K<- EVS2008F$v266new 
+EVS2008F$L<- EVS2008F$v271new 
+EVS2008F$M<- EVS2008F$v268new 
+EVS2008F$N1<- EVS2008F$v214new 
+EVS2008F$N2<- EVS2008F$v216new 
+EVS2008F$O<- EVS2008F$GC 
+EVS2008F$P<- EVS2008F$v278new 
+EVS2008F$Q<- EVS2008F$v269new
+EVS2008F$R<- EVS2008F$v270new
+EVS2008F$S<- EVS2008F$v272new
+EVS2008F$T<- EVS2008F$v258new 
+attach(EVS2008F)
+
+```
+
+```{r}
+#########creating a new dataset with the 33 node variables only
+Networkdata<-data.frame(A1,A2,A3,B,C1,C2,C3,D1,D2,D3,D4,D5,E,F,G,H1,H2,H3,H4,H5,I,J,K,L,M,N1,N2,O,P,Q,R,S,T)
+attach(Networkdata)
+
+Networkdata$A1<-	as.numeric(as.character(	Networkdata$A1	))
+Networkdata$A2<-	as.numeric(as.character(	Networkdata$A2	))
+Networkdata$A3<-	as.numeric(as.character(	Networkdata$A3	))
+Networkdata$B<-	as.numeric(as.character(	Networkdata$B	))
+Networkdata$C1<-	as.numeric	(as.character(Networkdata$C1)	)
+Networkdata$C2<-	as.numeric(as.character(	Networkdata$C2)	)
+Networkdata$C3<-	as.numeric(as.character(	Networkdata$C3)	)
+Networkdata$D1<-	as.numeric(as.character(	Networkdata$D1)	)
+Networkdata$D2<-	as.numeric(as.character(	Networkdata$D2)	)
+Networkdata$D3<-	as.numeric(as.character(	Networkdata$D3)	)
+Networkdata$D4<-	as.numeric(as.character(	Networkdata$D4)	)
+Networkdata$D5<-	as.numeric(as.character(	Networkdata$D5)	)
+Networkdata$E<-	as.numeric(as.character(	Networkdata$E	))
+Networkdata$F<-	as.numeric(as.character(	Networkdata$F	))
+Networkdata$G<-	as.numeric(as.character(	Networkdata$G	))
+Networkdata$H1<-	as.numeric(	as.character(Networkdata$H1	))
+Networkdata$H2<-	as.numeric(as.character(	Networkdata$H2	))
+Networkdata$H3<-	as.numeric(as.character(	Networkdata$H3	))
+Networkdata$H4<-	as.numeric(as.character(	Networkdata$H4	))
+Networkdata$H5<-	as.numeric(as.character(	Networkdata$H5	))
+Networkdata$I<-	as.numeric(as.character(	Networkdata$I	))
+Networkdata$J<-	as.numeric(as.character(	Networkdata$J	))
+Networkdata$K<-	as.numeric(as.character(	Networkdata$K	))
+Networkdata$L<-	as.numeric(as.character(	Networkdata$L	))
+Networkdata$M<-	as.numeric(as.character(	Networkdata$M	))
+Networkdata$N1<-	as.numeric(	as.character(Networkdata$N1)	)
+Networkdata$N2<-	as.numeric(	as.character(Networkdata$N2)	)
+Networkdata$O<-	as.numeric(as.character(	Networkdata$O	))
+Networkdata$P<-	as.numeric(as.character(	Networkdata$P	))
+Networkdata$Q<-	as.numeric(	as.character(Networkdata$Q	))
+Networkdata$R<-	as.numeric(as.character(	Networkdata$R	))
+Networkdata$S<-	as.numeric(as.character(	Networkdata$S	))
+Networkdata$T<-	as.numeric(as.character(	Networkdata$T	))
+attach(Networkdata)
+
+
+#####Save new dataset
+save(Networkdata,file="/Users/schmaelz/Documents/GITHUB/CitizenshipNetworks/data/Networkdata.Rdata")
+
+#####End of script to prepare data for Network Analysis of Global Citizenship Attitudes
+
+```
